@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-const API = "http://localhost:4000";
-const COLORS = { primary: "#0F4C81", accent: "#F97316", dark: "#0A2540", muted: "#64748B", success: "#16A34A", danger: "#DC2626", warning: "#D97706", border: "#E2E8F0" };
+const API = "https://estoquei-backend-daviidx7-production.up.railway.app";
 const PLANS = [
   { name: "Básico", price: "R$ 49", desc: "Ideal para autônomos e MEI", features: ["Até 200 produtos", "1 usuário", "Alertas de estoque baixo", "Relatórios básicos"], highlight: false, link: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a984113c814a43c8859852580e069600" },
   { name: "Profissional", price: "R$ 119", desc: "Para pequenas empresas", features: ["Produtos ilimitados", "Até 5 usuários", "Relatórios avançados", "Exportar para Excel", "Suporte prioritário"], highlight: true, link: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=e252c750eb2c42c6b6af6d7d11d4f1b8" },
@@ -144,8 +143,7 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
   const [newMovement, setNewMovement] = useState({ productId: "", type: "entrada", quantity: "" });
   const [toast, setToast] = useState(null);
   const [loadingData, setLoadingData] = useState(true);
-  useEffect(() => { loadAll(); }, []);
-  async function loadAll() {
+ useEffect(() => { loadAll(); }, [token]);
     setLoadingData(true);
     const status = await apiFetch("/api/status", "GET", null, token);
     if (status.accessStatus === "trial_expired" || status.accessStatus === "subscription_expired") { onBlocked(status.accessStatus); return; }
@@ -321,7 +319,7 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
       {toast && <div style={{ position: "fixed", bottom: 28, right: 28, background: toast.type==="error"?"#DC2626":"#16A34A", color: "#fff", padding: "12px 20px", borderRadius: 10, fontWeight: 600, fontSize: 14, zIndex: 1000 }}>{toast.type==="error"?"❌":"✅"} {toast.msg}</div>}
     </div>
   );
-}
+
 
 export default function App() {
   const [page, setPage] = useState("landing");
