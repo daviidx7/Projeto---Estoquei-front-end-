@@ -143,7 +143,8 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
   const [newMovement, setNewMovement] = useState({ productId: "", type: "entrada", quantity: "" });
   const [toast, setToast] = useState(null);
   const [loadingData, setLoadingData] = useState(true);
- useEffect(() => { loadAll(); }, [token]);
+  useEffect(() => { loadAll(); }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+  async function loadAll() {
     setLoadingData(true);
     const status = await apiFetch("/api/status", "GET", null, token);
     if (status.accessStatus === "trial_expired" || status.accessStatus === "subscription_expired") { onBlocked(status.accessStatus); return; }
@@ -319,7 +320,7 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
       {toast && <div style={{ position: "fixed", bottom: 28, right: 28, background: toast.type==="error"?"#DC2626":"#16A34A", color: "#fff", padding: "12px 20px", borderRadius: 10, fontWeight: 600, fontSize: 14, zIndex: 1000 }}>{toast.type==="error"?"❌":"✅"} {toast.msg}</div>}
     </div>
   );
-
+}
 
 export default function App() {
   const [page, setPage] = useState("landing");
