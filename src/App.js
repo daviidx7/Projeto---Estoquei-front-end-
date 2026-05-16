@@ -62,7 +62,6 @@ function LandingPage({ onGoToRegister, onGoToLogin }) {
         </div>
       </nav>
       <section style={{ padding: "80px 5%", textAlign: "center" }}>
-        <div style={{ background: "#EEF4FF", color: "#0F4C81", borderRadius: 20, padding: "4px 14px", fontSize: 13, fontWeight: 700, display: "inline-block", marginBottom: 20 }}>🇧🇷 Feito para o Brasil</div>
         <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 800, color: "#0A2540", marginBottom: 16 }}>Controle seu <span style={{ color: "#F97316" }}>estoque</span> sem complicação.</h1>
         <p style={{ fontSize: 18, color: "#64748B", marginBottom: 40, maxWidth: 500, margin: "0 auto 40px" }}>Sistema de gestão para pequenos e médios negócios. Evite perdas e nunca fique sem produto.</p>
         <button onClick={onGoToRegister} style={{ background: "#F97316", color: "#fff", border: "none", borderRadius: 10, padding: "16px 36px", fontWeight: 700, fontSize: 18, cursor: "pointer" }}>Começar grátis por 5 dias →</button>
@@ -89,6 +88,7 @@ function LandingPage({ onGoToRegister, onGoToLogin }) {
       <footer style={{ background: "#0A2540", color: "#94A3B8", padding: "40px 5%", textAlign: "center", marginTop: 60 }}>
         <div style={{ fontWeight: 800, fontSize: 20, color: "#fff", marginBottom: 12 }}>estoquei</div>
         <p style={{ fontSize: 13 }}>© 2025 Estoquei. Todos os direitos reservados.</p>
+        <p style={{ fontSize: 13, marginTop: 8 }}>Feito por <a href="https://instagram.com/daviiddev" target="_blank" rel="noreferrer" style={{ color: "#94A3B8", fontWeight: 700 }}>@daviiddev</a></p>
       </footer>
     </div>
   );
