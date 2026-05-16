@@ -13,10 +13,21 @@ async function apiFetch(path, method = "GET", body = null, token = null) {
 }
 const inputStyle = { display: "block", width: "100%", padding: "11px 14px", borderRadius: 8, border: "1px solid #E2E8F0", fontSize: 14, marginBottom: 12, boxSizing: "border-box", outline: "none" };
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handle = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handle);
+    return () => window.removeEventListener("resize", handle);
+  }, []);
+  return isMobile;
+}
+
 function BlockedPage({ type, onLogout }) {
+  const isMobile = useIsMobile();
   return (
     <div style={{ minHeight: "100vh", background: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "sans-serif" }}>
-      <div style={{ background: "#fff", borderRadius: 16, padding: 40, width: 500, boxShadow: "0 8px 32px rgba(0,0,0,0.08)", textAlign: "center" }}>
+      <div style={{ background: "#fff", borderRadius: 16, padding: 40, width: isMobile ? "90%" : 500, boxShadow: "0 8px 32px rgba(0,0,0,0.08)", textAlign: "center" }}>
         <div style={{ fontSize: 64, marginBottom: 16 }}>{type === "trial_expired" ? "⏰" : "🔒"}</div>
         <h2 style={{ fontWeight: 800, fontSize: 24, color: "#0A2540", marginBottom: 8 }}>
           {type === "trial_expired" ? "Seu período grátis acabou!" : "Assinatura expirada!"}
@@ -24,7 +35,7 @@ function BlockedPage({ type, onLogout }) {
         <p style={{ color: "#64748B", fontSize: 15, marginBottom: 32 }}>
           {type === "trial_expired" ? "Seus 5 dias grátis terminaram. Escolha um plano para continuar." : "Sua assinatura expirou. Renove para continuar acessando seu estoque."}
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: 16, marginBottom: 24 }}>
           {PLANS.map(p => (
             <div key={p.name} style={{ background: p.highlight ? "#0F4C81" : "#F8FAFC", borderRadius: 12, padding: 20, border: p.highlight ? "none" : "1px solid #E2E8F0" }}>
               <div style={{ fontWeight: 800, fontSize: 15, color: p.highlight ? "#fff" : "#0A2540", marginBottom: 4 }}>{p.name}</div>
@@ -40,6 +51,7 @@ function BlockedPage({ type, onLogout }) {
 }
 
 function LandingPage({ onGoToRegister, onGoToLogin }) {
+  const isMobile = useIsMobile();
   return (
     <div style={{ fontFamily: "sans-serif", background: "#F8FAFC", minHeight: "100vh" }}>
       <nav style={{ background: "#fff", borderBottom: "1px solid #E2E8F0", padding: "0 5%", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, position: "sticky", top: 0, zIndex: 100 }}>
@@ -51,14 +63,14 @@ function LandingPage({ onGoToRegister, onGoToLogin }) {
       </nav>
       <section style={{ padding: "80px 5%", textAlign: "center" }}>
         <div style={{ background: "#EEF4FF", color: "#0F4C81", borderRadius: 20, padding: "4px 14px", fontSize: 13, fontWeight: 700, display: "inline-block", marginBottom: 20 }}>🇧🇷 Feito para o Brasil</div>
-        <h1 style={{ fontSize: 48, fontWeight: 800, color: "#0A2540", marginBottom: 16 }}>Controle seu <span style={{ color: "#F97316" }}>estoque</span> sem complicação.</h1>
+        <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 800, color: "#0A2540", marginBottom: 16 }}>Controle seu <span style={{ color: "#F97316" }}>estoque</span> sem complicação.</h1>
         <p style={{ fontSize: 18, color: "#64748B", marginBottom: 40, maxWidth: 500, margin: "0 auto 40px" }}>Sistema de gestão para pequenos e médios negócios. Evite perdas e nunca fique sem produto.</p>
         <button onClick={onGoToRegister} style={{ background: "#F97316", color: "#fff", border: "none", borderRadius: 10, padding: "16px 36px", fontWeight: 700, fontSize: 18, cursor: "pointer" }}>Começar grátis por 5 dias →</button>
         <p style={{ fontSize: 13, color: "#64748B", marginTop: 12 }}>✓ Sem cartão de crédito &nbsp;&nbsp; ✓ Cancela quando quiser</p>
       </section>
       <section style={{ padding: "60px 5%", background: "#fff" }}>
         <h2 style={{ textAlign: "center", fontSize: 32, fontWeight: 800, marginBottom: 48, color: "#0A2540" }}>Planos simples, sem surpresas</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, maxWidth: 1000, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: 24, maxWidth: 1000, margin: "0 auto" }}>
           {PLANS.map(p => (
             <div key={p.name} style={{ background: p.highlight ? "#0F4C81" : "#fff", color: p.highlight ? "#fff" : "#0A2540", borderRadius: 16, border: p.highlight ? "none" : "1px solid #E2E8F0", padding: 32, boxShadow: p.highlight ? "0 12px 40px rgba(15,76,129,0.25)" : "none", transform: p.highlight ? "scale(1.03)" : "none", position: "relative" }}>
               {p.highlight && <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "#F97316", color: "#fff", fontSize: 12, fontWeight: 700, padding: "4px 16px", borderRadius: 20 }}>MAIS POPULAR</div>}
@@ -130,6 +142,7 @@ function AuthPage({ onLogin, onBack, initialMode }) {
 }
 
 function Dashboard({ token, user, onLogout, onBlocked }) {
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("overview");
   const [products, setProducts] = useState([]);
   const [movements, setMovements] = useState([]);
@@ -139,6 +152,7 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
   const [search, setSearch] = useState("");
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showAddMovement, setShowAddMovement] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [newProduct, setNewProduct] = useState({ name: "", category: "", quantity: "", minQty: "", price: "" });
   const [newMovement, setNewMovement] = useState({ productId: "", type: "entrada", quantity: "" });
   const [toast, setToast] = useState(null);
@@ -181,53 +195,73 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
   const getStatus = p => p.quantity === 0 ? "out" : p.quantity <= p.minQty ? "low" : "ok";
   const navItems = [{ key: "overview", label: "Visão Geral", icon: "⊞" }, { key: "products", label: "Produtos", icon: "📦" }, { key: "movements", label: "Movimentações", icon: "↕️" }, { key: "alerts", label: "Alertas", icon: "🔔", badge: alerts.length }];
   return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: "sans-serif", background: "#F1F5F9" }}>
-      <aside style={{ width: 220, background: "#0A2540", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "24px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-          <div style={{ color: "#fff", fontWeight: 800, fontSize: 20 }}>estoquei</div>
-          <div style={{ marginTop: 10, fontSize: 13, color: "#94A3B8" }}>{user.company}</div>
-          <div style={{ fontSize: 11, color: "#475569" }}>{user.name}</div>
-          {daysLeft !== null && daysLeft <= 5 && (
-            <div style={{ marginTop: 10, background: daysLeft <= 2 ? "#DC2626" : "#D97706", borderRadius: 6, padding: "4px 8px", fontSize: 11, color: "#fff", fontWeight: 700 }}>
-              ⚠️ {daysLeft} dia(s) restantes
+    <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", height: "100vh", fontFamily: "sans-serif", background: "#F1F5F9" }}>
+      {isMobile ? (
+        <>
+          <div style={{ background: "#0A2540", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ color: "#fff", fontWeight: 800, fontSize: 18 }}>estoquei</span>
+            <button onClick={() => setShowMenu(!showMenu)} style={{ background: "none", border: "none", color: "#fff", fontSize: 24, cursor: "pointer" }}>☰</button>
+          </div>
+          {showMenu && (
+            <div style={{ background: "#0A2540", padding: "8px 12px" }}>
+              {navItems.map(item => (
+                <button key={item.key} onClick={() => { setActiveTab(item.key); setShowMenu(false); }} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 12px", borderRadius: 8, border: "none", background: activeTab === item.key ? "rgba(255,255,255,0.1)" : "transparent", color: activeTab === item.key ? "#fff" : "#94A3B8", cursor: "pointer", fontSize: 14, marginBottom: 2, textAlign: "left" }}>
+                  {item.icon} {item.label}
+                  {item.badge > 0 && <span style={{ marginLeft: "auto", background: "#DC2626", color: "#fff", fontSize: 10, fontWeight: 700, borderRadius: 10, padding: "2px 6px" }}>{item.badge}</span>}
+                </button>
+              ))}
+              <button onClick={onLogout} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "none", background: "transparent", color: "#475569", cursor: "pointer", fontSize: 13, textAlign: "left" }}>🚪 Sair</button>
             </div>
           )}
-        </div>
-        <nav style={{ flex: 1, padding: "16px 12px" }}>
-          {navItems.map(item => (
-            <button key={item.key} onClick={() => setActiveTab(item.key)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 12px", borderRadius: 8, border: "none", background: activeTab === item.key ? "rgba(255,255,255,0.1)" : "transparent", color: activeTab === item.key ? "#fff" : "#94A3B8", cursor: "pointer", fontSize: 14, marginBottom: 2, textAlign: "left" }}>
-              {item.icon} {item.label}
-              {item.badge > 0 && <span style={{ marginLeft: "auto", background: "#DC2626", color: "#fff", fontSize: 10, fontWeight: 700, borderRadius: 10, padding: "2px 6px" }}>{item.badge}</span>}
-            </button>
-          ))}
-        </nav>
-        <div style={{ padding: "12px 12px 20px" }}>
-          <button onClick={onLogout} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "none", background: "transparent", color: "#475569", cursor: "pointer", fontSize: 13, textAlign: "left" }}>🚪 Sair</button>
-        </div>
-      </aside>
+        </>
+      ) : (
+        <aside style={{ width: 220, background: "#0A2540", display: "flex", flexDirection: "column" }}>
+          <div style={{ padding: "24px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ color: "#fff", fontWeight: 800, fontSize: 20 }}>estoquei</div>
+            <div style={{ marginTop: 10, fontSize: 13, color: "#94A3B8" }}>{user.company}</div>
+            <div style={{ fontSize: 11, color: "#475569" }}>{user.name}</div>
+            {daysLeft !== null && daysLeft <= 5 && (
+              <div style={{ marginTop: 10, background: daysLeft <= 2 ? "#DC2626" : "#D97706", borderRadius: 6, padding: "4px 8px", fontSize: 11, color: "#fff", fontWeight: 700 }}>
+                ⚠️ {daysLeft} dia(s) restantes
+              </div>
+            )}
+          </div>
+          <nav style={{ flex: 1, padding: "16px 12px" }}>
+            {navItems.map(item => (
+              <button key={item.key} onClick={() => setActiveTab(item.key)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 12px", borderRadius: 8, border: "none", background: activeTab === item.key ? "rgba(255,255,255,0.1)" : "transparent", color: activeTab === item.key ? "#fff" : "#94A3B8", cursor: "pointer", fontSize: 14, marginBottom: 2, textAlign: "left" }}>
+                {item.icon} {item.label}
+                {item.badge > 0 && <span style={{ marginLeft: "auto", background: "#DC2626", color: "#fff", fontSize: 10, fontWeight: 700, borderRadius: 10, padding: "2px 6px" }}>{item.badge}</span>}
+              </button>
+            ))}
+          </nav>
+          <div style={{ padding: "12px 12px 20px" }}>
+            <button onClick={onLogout} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "none", background: "transparent", color: "#475569", cursor: "pointer", fontSize: 13, textAlign: "left" }}>🚪 Sair</button>
+          </div>
+        </aside>
+      )}
       <main style={{ flex: 1, overflow: "auto" }}>
-        <div style={{ background: "#fff", borderBottom: "1px solid #E2E8F0", padding: "0 28px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ fontWeight: 700, fontSize: 18, margin: 0 }}>{activeTab === "overview" && "Visão Geral"}{activeTab === "products" && "Produtos"}{activeTab === "movements" && "Movimentações"}{activeTab === "alerts" && "Alertas"}</h1>
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            {activeTab === "products" && <><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar..." style={{ padding: "7px 14px", borderRadius: 8, border: "1px solid #E2E8F0", fontSize: 13, outline: "none" }} /><button onClick={() => setShowAddProduct(true)} style={{ background: "#0F4C81", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>+ Produto</button></>}
-            {activeTab === "movements" && <button onClick={() => setShowAddMovement(true)} style={{ background: "#0F4C81", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>+ Movimentação</button>}
+        <div style={{ background: "#fff", borderBottom: "1px solid #E2E8F0", padding: "0 16px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <h1 style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{activeTab === "overview" && "Visão Geral"}{activeTab === "products" && "Produtos"}{activeTab === "movements" && "Movimentações"}{activeTab === "alerts" && "Alertas"}</h1>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {activeTab === "products" && <><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar..." style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #E2E8F0", fontSize: 13, outline: "none", width: isMobile ? 100 : 160 }} /><button onClick={() => setShowAddProduct(true)} style={{ background: "#0F4C81", color: "#fff", border: "none", borderRadius: 8, padding: "8px 12px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>+ Produto</button></>}
+            {activeTab === "movements" && <button onClick={() => setShowAddMovement(true)} style={{ background: "#0F4C81", color: "#fff", border: "none", borderRadius: 8, padding: "8px 12px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>+ Movimentação</button>}
             <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#0F4C81", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700 }}>{user.name?.[0]?.toUpperCase()}</div>
           </div>
         </div>
-        <div style={{ padding: 28 }}>
+        <div style={{ padding: isMobile ? 16 : 28 }}>
           {loadingData && <div style={{ textAlign: "center", padding: 60, color: "#64748B" }}>Carregando...</div>}
           {!loadingData && activeTab === "overview" && (
             <div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
                 {[{ label: "Produtos", value: summary.total, color: "#0F4C81", icon: "📦" }, { label: "Valor em Estoque", value: `R$ ${Number(summary.totalValue).toLocaleString("pt-BR",{minimumFractionDigits:2})}`, color: "#16A34A", icon: "💰" }, { label: "Estoque Baixo", value: summary.lowStock, color: "#D97706", icon: "⚠️" }, { label: "Esgotados", value: summary.outOfStock, color: "#DC2626", icon: "🚫" }].map(s => (
-                  <div key={s.label} style={{ background: "#fff", borderRadius: 12, padding: "20px 22px", border: "1px solid #E2E8F0" }}>
-                    <div style={{ fontSize: 24, marginBottom: 8 }}>{s.icon}</div>
-                    <div style={{ fontWeight: 800, fontSize: 24, color: s.color }}>{s.value}</div>
-                    <div style={{ fontSize: 13, color: "#64748B", marginTop: 4 }}>{s.label}</div>
+                  <div key={s.label} style={{ background: "#fff", borderRadius: 12, padding: "16px", border: "1px solid #E2E8F0" }}>
+                    <div style={{ fontSize: 20, marginBottom: 6 }}>{s.icon}</div>
+                    <div style={{ fontWeight: 800, fontSize: isMobile ? 18 : 24, color: s.color }}>{s.value}</div>
+                    <div style={{ fontSize: 12, color: "#64748B", marginTop: 4 }}>{s.label}</div>
                   </div>
                 ))}
               </div>
-              <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E2E8F0", padding: 24 }}>
+              <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E2E8F0", padding: 20 }}>
                 <h3 style={{ fontWeight: 700, fontSize: 15, margin: "0 0 18px" }}>Últimas movimentações</h3>
                 {movements.length === 0 && <p style={{ color: "#64748B" }}>Nenhuma movimentação ainda.</p>}
                 {movements.slice(0,5).map(m => (
@@ -240,9 +274,9 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
             </div>
           )}
           {!loadingData && activeTab === "products" && (
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E2E8F0", overflow: "hidden" }}>
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E2E8F0", overflow: "auto" }}>
               {filtered.length === 0 ? <div style={{ padding: 40, textAlign: "center", color: "#64748B" }}>{products.length === 0 ? "Nenhum produto ainda. Clique em + Produto!" : "Nenhum encontrado."}</div> :
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
                   <thead><tr style={{ background: "#F8FAFC" }}>{["Produto","Categoria","Qtd.","Mín.","Preço","Status",""].map(h => <th key={h} style={{ padding: "12px 16px", fontSize: 12, fontWeight: 700, color: "#64748B", textAlign: "left", borderBottom: "1px solid #E2E8F0", textTransform: "uppercase" }}>{h}</th>)}</tr></thead>
                   <tbody>{filtered.map((p,i) => { const st = getStatus(p); return (
                     <tr key={p.id} style={{ background: i%2===0?"#fff":"#FAFAFA" }}>
@@ -259,7 +293,7 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
             </div>
           )}
           {!loadingData && activeTab === "movements" && (
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E2E8F0", padding: 24 }}>
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E2E8F0", padding: 20 }}>
               {movements.length === 0 && <p style={{ color: "#64748B", textAlign: "center", padding: 40 }}>Nenhuma movimentação ainda.</p>}
               {movements.map(m => (
                 <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 0", borderBottom: "1px solid #E2E8F0" }}>
@@ -284,8 +318,8 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
         </div>
       </main>
       {showAddProduct && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 32, width: 420 }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 16 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 32, width: "100%", maxWidth: 420 }}>
             <h2 style={{ fontWeight: 800, fontSize: 20, marginBottom: 24 }}>Novo Produto</h2>
             {[["Nome do produto *","name","text"],["Categoria","category","text"],["Quantidade atual *","quantity","number"],["Estoque mínimo","minQty","number"],["Preço unitário (ex: 10.50)","price","number"]].map(([label,key,type]) => (
               <input key={key} type={type} placeholder={label} value={newProduct[key]} onChange={e => setNewProduct(p => ({ ...p, [key]: e.target.value }))} style={inputStyle} />
@@ -298,8 +332,8 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
         </div>
       )}
       {showAddMovement && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 32, width: 420 }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 16 }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 32, width: "100%", maxWidth: 420 }}>
             <h2 style={{ fontWeight: 800, fontSize: 20, marginBottom: 24 }}>Nova Movimentação</h2>
             <select value={newMovement.productId} onChange={e => setNewMovement(m => ({ ...m, productId: e.target.value }))} style={inputStyle}>
               <option value="">Selecione o produto *</option>
