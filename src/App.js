@@ -100,15 +100,19 @@ function AuthPage({ onLogin, onBack, initialMode }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   async function handleSubmit() {
-    setError(""); setLoading(true);
+    setError("");
+    if (!form.email || !form.password) { setError("Preencha o e-mail e a senha."); return; }
+    if (mode === "register" && (!form.name || !form.companyName)) { setError("Preencha todos os campos."); return; }
+    setLoading(true);
     try {
       const data = await apiFetch(mode === "login" ? "/api/login" : "/api/register", "POST", form);
       if (data.error) { setError(data.error); setLoading(false); return; }
+      if (!data.token || !data.user) { setError("Erro ao autenticar. Tente novamente."); setLoading(false); return; }
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("accessStatus", data.accessStatus || "ok");
       onLogin(data.token, data.user, data.accessStatus || "ok");
-    } catch { setError("Erro de conexão. Verifique se o servidor está rodando."); }
+    } catch { setError("Erro de conexão. Verifique sua internet."); }
     setLoading(false);
   }
   return (
@@ -161,6 +165,7 @@ function Dashboard({ token, user, onLogout, onBlocked }) {
   async function loadAll() {
     setLoadingData(true);
     const status = await apiFetch("/api/status", "GET", null, token);
+    if (!status || status.error === "Token invalido" || status.error === "Nao autorizado") { onLogout(); return; }
     if (status.accessStatus === "trial_expired" || status.accessStatus === "subscription_expired") { onBlocked(status.accessStatus); return; }
     setDaysLeft(status.daysLeft);
     const [p, m, s, a] = await Promise.all([apiFetch("/api/products","GET",null,token), apiFetch("/api/movements","GET",null,token), apiFetch("/api/summary","GET",null,token), apiFetch("/api/alerts","GET",null,token)]);
